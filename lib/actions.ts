@@ -273,3 +273,90 @@ export async function dismissAlert(alertId: string) {
 
     revalidatePath('/protected');
 }
+
+/**
+ * Fetch data for the activity graph (nodes and links)
+ */
+export async function getActivityGraph() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { nodes: [], links: [] };
+
+    // Fetch activity with referrer_domain to build chains
+    const { data, error } = await supabase
+        .from('website_activity')
+        .select('domain, referrer_domain, time_spent_seconds, category')
+        .eq('user_id', user.id)
+        .eq('date', new Date().toISOString().split('T')[0])
+        .order('last_visited', { ascending: true });
+
+    if (error) {
+        console.error('Error fetching activity graph:', error);
+        return { nodes: [], links: [] };
+    }
+
+    const nodesMap = new Map();
+    const links: any[] = [];
+
+    data.forEach(item => {
+        if (!nodesMap.has(item.domain)) {
+            nodesMap.set(item.domain, {
+                id: item.domain,
+                name: item.domain,
+                val: item.time_spent_seconds,
+                category: item.category
+            });
+        } else {
+            const node = nodesMap.get(item.domain);
+            node.val += item.time_spent_seconds;
+        }
+
+        if (item.referrer_domain && item.referrer_domain !== item.domain) {
+            links.push({
+                source: item.referrer_domain,
+                target: item.domain
+            });
+        }
+    });
+
+    return {
+        nodes: Array.from(nodesMap.values()),
+        links: links.slice(-20) // Only show recent chains for clarity
+    };
+}
+
+/**
+ * Check if the user should be blocked based on thresholds
+ */
+export async function checkBlockingStatus() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { shouldBlock: false };
+
+    // Get settings and current metrics
+    const [settingsRes, metricsRes] = await Promise.all([
+        supabase.from('user_settings').select('tab_switch_limit, distraction_time_limit_minutes, focus_mode_enabled').eq('id', user.id).single(),
+        supabase.from('daily_metrics').select('tab_switch_count, distraction_time_minutes').eq('user_id', user.id).eq('date', new Date().toISOString().split('T')[0]).single()
+    ]);
+
+    if (settingsRes.error || !settingsRes.data.focus_mode_enabled) return { shouldBlock: false };
+
+    const settings = settingsRes.data;
+    const metrics = metricsRes.data || { tab_switch_count: 0, distraction_time_minutes: 0 };
+
+    const tabSwitchExceeded = metrics.tab_switch_count >= settings.tab_switch_limit;
+    const timeExceeded = metrics.distraction_time_minutes >= settings.distraction_time_limit_minutes;
+
+    if (tabSwitchExceeded || timeExceeded) {
+        return {
+            shouldBlock: true,
+            reason: tabSwitchExceeded ? 'Frequent tab switching' : 'Extended distraction time',
+            limit: tabSwitchExceeded ? settings.tab_switch_limit : settings.distraction_time_limit_minutes,
+            current: tabSwitchExceeded ? metrics.tab_switch_count : metrics.distraction_time_minutes
+        };
+    }
+
+    return { shouldBlock: false };
+}

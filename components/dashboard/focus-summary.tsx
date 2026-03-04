@@ -22,151 +22,149 @@ export function FocusSummary({ metrics: initialMetrics }: { metrics: FocusMetric
     sessions_today: 0,
   };
 
-  const gaugeData = [
-    { name: 'Score', value: metricsData.focus_score },
-    { name: 'Remaining', value: 100 - metricsData.focus_score },
-  ];
-
   const displayMetrics = [
     {
       label: 'Focus Time',
       value: `${metricsData.focus_time_minutes}m`,
       icon: Zap,
-      color: 'from-purple-500 to-purple-600',
+      color: 'from-primary to-primary/60',
     },
     {
-      label: 'Distraction Time',
+      label: 'Distraction',
       value: `${metricsData.distraction_time_minutes}m`,
       icon: TrendingUp,
-      color: 'from-red-500 to-red-600',
+      color: 'from-red-500 to-red-400',
     },
     {
-      label: 'Longest Streak',
+      label: 'Flow Streak',
       value: `${metricsData.longest_streak_minutes}m`,
       icon: Target,
-      color: 'from-cyan-500 to-cyan-600',
+      color: 'from-cyan-500 to-blue-500',
     },
     {
-      label: 'Sessions Today',
+      label: 'Daily Sessions',
       value: metricsData.sessions_today,
       icon: Clock,
-      color: 'from-orange-500 to-orange-600',
+      color: 'from-amber-500 to-orange-500',
     },
   ];
 
   return (
-    <div className="grid gap-4 md:gap-6">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {displayMetrics.map((metric) => {
           const Icon = metric.icon;
           return (
-            <Card key={metric.label} className="p-4 md:p-6 backdrop-blur-sm border-border/50">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">{metric.label}</p>
-                  <p className="text-2xl md:text-3xl font-bold text-foreground">
-                    {metric.value}
-                  </p>
+            <div key={metric.label} className="group relative">
+              <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 rounded-3xl`} />
+              <Card className="relative p-6 md:p-8 bg-card/40 backdrop-blur-xl border-white/5 hover:border-primary/20 transition-all duration-500 rounded-[2rem] overflow-hidden group">
+                <div className="flex items-start justify-between relative z-10">
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">{metric.label}</p>
+                    <p className="text-3xl md:text-4xl font-black text-foreground tracking-tighter italic">
+                      {metric.value}
+                    </p>
+                  </div>
+                  <div className={`p-4 rounded-2xl bg-gradient-to-br ${metric.color} shadow-lg shadow-black/20 group-hover:scale-110 transition-transform duration-500`}>
+                    <Icon className="h-6 w-6 text-white" />
+                  </div>
                 </div>
-                <div className={`p-2 rounded-lg bg-gradient-to-br ${metric.color}`}>
-                  <Icon className="h-5 w-5 text-white" />
-                </div>
-              </div>
-            </Card>
+                {/* Decorative background element */}
+                <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-gradient-to-br ${metric.color} opacity-[0.03] rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700`} />
+              </Card>
+            </div>
           );
         })}
       </div>
 
-      {/* Focus Score Gauge and Status */}
-      <Card className="p-6 md:p-8 backdrop-blur-sm border-border/50">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {/* Left: Gauge */}
-          <div className="flex flex-col items-center justify-center">
-            <div className="relative h-56 w-56 flex items-center justify-center">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={gaugeData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={70}
-                    outerRadius={100}
-                    startAngle={180}
-                    endAngle={0}
-                    dataKey="value"
-                  >
-                    <Cell fill="url(#scoreGradient)" />
-                    <Cell fill="#1f2937" />
-                  </Pie>
-                  <defs>
-                    <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#a855f7" />
-                      <stop offset="100%" stopColor="#06b6d4" />
-                    </linearGradient>
-                  </defs>
-                </PieChart>
-              </ResponsiveContainer>
+      {/* Focus Architecture Section */}
+      <Card className="p-8 md:p-12 bg-card/40 backdrop-blur-3xl border-white/5 rounded-[3rem] overflow-hidden relative group">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50" />
+        <div className="absolute -right-24 -top-24 w-96 h-96 bg-primary/10 blur-[120px] rounded-full group-hover:scale-110 transition-transform duration-1000" />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 relative z-10">
+          {/* Left: Enhanced Score Display */}
+          <div className="lg:col-span-4 flex flex-col items-center justify-center space-y-6">
+            <div className="relative w-64 h-64 flex items-center justify-center">
+              {/* Outer ring */}
+              <div className="absolute inset-0 rounded-full border-4 border-white/5" />
+              {/* Score Arc Simulation using CSS because Recharts can be finicky in walkthroughs */}
+              <svg className="w-full h-full -rotate-90">
+                <circle
+                  cx="50%"
+                  cy="50%"
+                  r="110"
+                  className="fill-none stroke-white/5"
+                  strokeWidth="12"
+                />
+                <circle
+                  cx="50%"
+                  cy="50%"
+                  r="110"
+                  className="fill-none stroke-primary"
+                  strokeWidth="12"
+                  strokeDasharray={`${(metricsData.focus_score / 100) * 691} 691`}
+                  strokeLinecap="round"
+                />
+              </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className="text-5xl font-bold text-foreground">
-                  {metricsData.focus_score}
-                </div>
-                <div className="text-sm text-muted-foreground">Focus Score</div>
+                <span className="text-7xl font-black text-foreground tracking-tighter animate-pulse">{metricsData.focus_score}</span>
+                <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-2">Flow Integrity</span>
               </div>
             </div>
           </div>
 
-          {/* Right: Status and Details */}
-          <div className="md:col-span-2 flex flex-col justify-center gap-6">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground mb-3">Today's Performance</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-card/50 border border-border/30">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Focus Sessions</p>
-                    <p className="text-xl font-semibold text-foreground">
-                      {metricsData.sessions_today}
-                    </p>
+          {/* Right: Insights & Progress */}
+          <div className="lg:col-span-8 flex flex-col justify-center space-y-10">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                <h3 className="text-xs font-black text-muted-foreground uppercase tracking-[0.4em]">NEURAL INSIGHTS</h3>
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-6 rounded-3xl bg-secondary/20 border border-white/5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Growth Retention</span>
+                    <Badge className="bg-green-500/10 text-green-400 border-green-500/20 px-3 py-1 font-black">+15.4%</Badge>
                   </div>
-                  <Badge className="bg-green-600/20 text-green-300 border-green-600/30">
-                    +15% vs avg
-                  </Badge>
+                  <p className="text-xl font-bold text-foreground italic">You're hitting deep flow 22min faster than last week.</p>
                 </div>
-
-                <div className="flex items-center justify-between p-3 rounded-lg bg-card/50 border border-border/30">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Streak</p>
-                    <p className="text-xl font-semibold text-foreground">
-                      {metricsData.longest_streak_minutes} min
-                    </p>
+                
+                <div className="p-6 rounded-3xl bg-secondary/20 border border-white/5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Consistency Arc</span>
+                    <Badge className="bg-primary/10 text-primary border-primary/20 px-3 py-1 font-black">Elite Level</Badge>
                   </div>
-                  <Badge className="bg-purple-600/20 text-purple-300 border-purple-600/30">
-                    Personal Best
-                  </Badge>
+                  <p className="text-xl font-bold text-foreground italic">9th consecutive session without a neural breach.</p>
                 </div>
               </div>
             </div>
 
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">Focus Breakdown</p>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 bg-card rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-purple-500 to-cyan-500"
-                      style={{
-                        width: `${(metricsData.focus_time_minutes / (metricsData.focus_time_minutes + metricsData.distraction_time_minutes || 1)) * 100}%`,
-                      }}
-                    />
-                  </div>
-                  <span className="text-sm font-medium text-foreground">
-                    {Math.round((metricsData.focus_time_minutes / (metricsData.focus_time_minutes + metricsData.distraction_time_minutes || 1)) * 100)}%
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">Efficiency Balance</p>
+                <div className="flex gap-4 text-[10px] font-black uppercase tracking-widest">
+                  <span className="text-primary flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    Deep Work: {metricsData.focus_time_minutes}m
+                  </span>
+                  <span className="text-red-400 flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                    Breach: {metricsData.distraction_time_minutes}m
                   </span>
                 </div>
-                <div className="flex gap-4 text-xs text-muted-foreground">
-                  <span>Focus: {metricsData.focus_time_minutes}m</span>
-                  <span>Distracted: {metricsData.distraction_time_minutes}m</span>
-                </div>
+              </div>
+              
+              <div className="relative h-4 bg-black/40 rounded-full overflow-hidden border border-white/10 p-1">
+                <div
+                  className="h-full bg-gradient-to-r from-primary via-cyan-400 to-primary rounded-full shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-all duration-1000 ease-out"
+                  style={{
+                    width: `${(metricsData.focus_time_minutes / (metricsData.focus_time_minutes + metricsData.distraction_time_minutes || 1)) * 100}%`,
+                  }}
+                />
               </div>
             </div>
           </div>

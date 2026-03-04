@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS public.website_activity (
   time_spent_seconds integer DEFAULT 0,
   category text CHECK (category IN ('Productive', 'Distracting', 'Neutral')),
   last_visited timestamp with time zone DEFAULT now(),
-  date date DEFAULT current_date NOT NULL
+  date date DEFAULT current_date NOT NULL,
+  referrer_domain text -- For tracking distraction chains
 );
 
 -- 4. Daily Metrics (Pre-summarized for performance)
@@ -40,6 +41,7 @@ CREATE TABLE IF NOT EXISTS public.daily_metrics (
   focus_score integer DEFAULT 0,
   sessions_today integer DEFAULT 0,
   longest_streak_minutes integer DEFAULT 0,
+  tab_switch_count integer DEFAULT 0, -- Tracked for blocking
   UNIQUE(user_id, date)
 );
 
@@ -62,6 +64,8 @@ CREATE TABLE IF NOT EXISTS public.user_settings (
   distracting_sites text[] DEFAULT '{}'::text[],
   notifications_enabled boolean DEFAULT true,
   focus_mode_enabled boolean DEFAULT false,
+  tab_switch_limit integer DEFAULT 10, -- Max switches before block
+  distraction_time_limit_minutes integer DEFAULT 5, -- Max time on distracting sites
   updated_at timestamp with time zone DEFAULT now()
 );
 
