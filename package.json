@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:extension": "node --test extension/tests/*.test.mjs",
+    "check:extension": "node --check extension/url-check.mjs && node --check extension/view.mjs && node --check extension/background.js && node --check extension/content.js && node --check extension/popup.js",
+    "package:extension": "node scripts/package-extension.mjs",
+    "lint:product": "eslint app/page.tsx app/extension/page.tsx app/layout.tsx proxy.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -65,9 +69,14 @@
     "@types/node": "^22",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "^16.1.6",
     "postcss": "^8.5",
     "tailwindcss": "^4.2.0",
     "tw-animate-css": "1.3.3",
     "typescript": "5.7.3"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

@@ -48,8 +48,13 @@ export default function Dashboard() {
     const savedSession = localStorage.getItem('focus_session_active');
     const savedStartTime = localStorage.getItem('focus_session_start');
     if (savedSession === 'true' && savedStartTime) {
+      const startMs = parseInt(savedStartTime);
       setIsSessionActive(true);
-      setSessionStartTime(parseInt(savedStartTime));
+      setSessionStartTime(startMs);
+      window.postMessage(
+        { source: 'focusguard', type: 'SET_SESSION_STATUS', active: true, sessionStartMs: startMs },
+        '*',
+      );
     }
   }, []);
 
@@ -57,11 +62,23 @@ export default function Dashboard() {
     const newState = !isSessionActive;
     setIsSessionActive(newState);
 
+    // Always notify extension via page->content-script relay (works without extension APIs on window).
+    const nextStartMs = newState ? Date.now() : null;
+    window.postMessage(
+      { source: 'focusguard', type: 'SET_SESSION_STATUS', active: newState, sessionStartMs: nextStartMs },
+      '*',
+    );
+
     // Notify browser extension if it exists
-    const extensionId = "YOUR_EXTENSION_ID"; // We will tell the user to get this ID
+    const extensionId = process.env.NEXT_PUBLIC_EXTENSION_ID;
     const chrome = (window as any).chrome;
-    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
-      chrome.runtime.sendMessage(extensionId, { type: 'SET_SESSION_STATUS', active: newState }, (response: any) => {
+    if (
+      extensionId &&
+      typeof chrome !== 'undefined' &&
+      chrome.runtime &&
+      chrome.runtime.sendMessage
+    ) {
+      chrome.runtime.sendMessage(extensionId, { type: 'SET_SESSION_STATUS', active: newState, sessionStartMs: nextStartMs }, (response: any) => {
         if (chrome.runtime.lastError) {
           console.log('Extension not found or not loaded');
         } else {
@@ -71,7 +88,7 @@ export default function Dashboard() {
     }
 
     if (newState) {
-      const now = Date.now();
+      const now = nextStartMs!;
       setSessionStartTime(now);
       localStorage.setItem('focus_session_active', 'true');
       localStorage.setItem('focus_session_start', now.toString());

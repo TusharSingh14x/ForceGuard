@@ -1,17 +1,37 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getSupabaseEnv } from './env'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
 
+  let supabaseUrl: string
+  let supabaseKey: string
+  try {
+    ;({ url: supabaseUrl, key: supabaseKey } = getSupabaseEnv())
+  } catch {
+    return supabaseResponse
+  }
+
+  const fetchWithTimeout: typeof fetch = async (input, init) => {
+    const timeoutSignal = AbortSignal.timeout(3_000)
+    const signal = init?.signal
+      ? AbortSignal.any([init.signal, timeoutSignal])
+      : timeoutSignal
+    return fetch(input, { ...init, signal })
+  }
+
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
+      global: {
+        fetch: fetchWithTimeout,
+      },
       cookies: {
         getAll() {
           return request.cookies.getAll()
@@ -37,9 +57,17 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: If you remove getUser() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  let user: unknown = null
+  try {
+    const {
+      data: { user: fetchedUser },
+    } = await supabase.auth.getUser()
+    user = fetchedUser
+  } catch {
+    // If Supabase is unreachable (DNS/network), don't block the whole app.
+    // We'll just skip auth-based redirects for this request.
+    return supabaseResponse
+  }
 
   if (
     // if the user is not logged in and the app path, in this case, /protected, is accessed, redirect to the login page

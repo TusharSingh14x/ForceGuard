@@ -19,7 +19,7 @@ export async function getDailyMetrics() {
         .eq('date', new Date().toISOString().split('T')[0])
         .single();
 
-    if (error && error.code !== 'PGRST116') {
+    if (error && error.code !== 'PGRST116' && error.code !== 'PGRST205') {
         console.error('Error fetching metrics:', error);
         return null;
     }
@@ -96,7 +96,7 @@ export async function getUserSettings() {
         .eq('id', user.id)
         .single();
 
-    if (error && error.code !== 'PGRST116') {
+    if (error && error.code !== 'PGRST116' && error.code !== 'PGRST205') {
         console.error('Error fetching settings:', error);
         return null;
     }
@@ -121,7 +121,14 @@ export async function updateUserSettings(settings: any) {
             updated_at: new Date().toISOString()
         });
 
-    if (error) throw error;
+    if (error) {
+        // If tables aren't created yet, don't crash the UI.
+        if (error.code === 'PGRST205') {
+            console.error('Error updating settings (missing table):', error);
+            return;
+        }
+        throw error;
+    }
 
     revalidatePath('/protected');
 }
@@ -269,7 +276,13 @@ export async function dismissAlert(alertId: string) {
         .eq('id', alertId)
         .eq('user_id', user.id);
 
-    if (error) throw error;
+    if (error) {
+        if (error.code === 'PGRST205') {
+            console.error('Error dismissing alert (missing table):', error);
+            return;
+        }
+        throw error;
+    }
 
     revalidatePath('/protected');
 }
@@ -341,6 +354,9 @@ export async function checkBlockingStatus() {
         supabase.from('daily_metrics').select('tab_switch_count, distraction_time_minutes').eq('user_id', user.id).eq('date', new Date().toISOString().split('T')[0]).single()
     ]);
 
+    if (settingsRes.error?.code === 'PGRST205' || metricsRes.error?.code === 'PGRST205') {
+        return { shouldBlock: false };
+    }
     if (settingsRes.error || !settingsRes.data.focus_mode_enabled) return { shouldBlock: false };
 
     const settings = settingsRes.data;

@@ -66,8 +66,13 @@ CREATE TABLE IF NOT EXISTS public.user_settings (
   focus_mode_enabled boolean DEFAULT false,
   tab_switch_limit integer DEFAULT 10, -- Max switches before block
   distraction_time_limit_minutes integer DEFAULT 5, -- Max time on distracting sites
+  extension_settings jsonb DEFAULT '{}'::jsonb,
   updated_at timestamp with time zone DEFAULT now()
 );
+
+-- If table already existed, add new column safely
+ALTER TABLE IF EXISTS public.user_settings
+  ADD COLUMN IF NOT EXISTS extension_settings jsonb DEFAULT '{}'::jsonb;
 
 -- Row Level Security (RLS)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;

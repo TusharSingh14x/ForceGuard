@@ -1,166 +1,130 @@
-'use client'
-
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { Shield, Zap, Target, TrendingUp, ArrowRight, Play, CheckCircle2 } from 'lucide-react'
-
+import Link from "next/link";
+import styles from "./home.module.css";
 export default function Home() {
-  const router = useRouter()
-  const [isAuthChecking, setIsAuthChecking] = useState(true)
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (user) {
-        router.push('/protected')
-      } else {
-        setIsAuthChecking(false)
-      }
-    }
-
-    checkAuth()
-  }, [router])
-
-  if (isAuthChecking) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    )
-  }
-
   return (
-    <main className="min-h-screen bg-background text-foreground selection:bg-primary/30 overflow-x-hidden">
-      {/* Background Decor */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 blur-[120px] rounded-full animate-pulse [animation-delay:1s]" />
-      </div>
-
-      {/* Navigation */}
-      <nav className="max-w-7xl mx-auto px-6 py-8 flex items-center justify-between">
-        <div className="flex items-center gap-2 group cursor-default">
-          <div className="bg-primary p-2 rounded-xl transition-transform group-hover:rotate-12">
-            <Shield className="w-6 h-6 text-primary-foreground" />
-          </div>
-          <span className="text-xl font-black tracking-tighter uppercase">FocusGuard</span>
-        </div>
-        <div className="flex items-center gap-6">
-          <Link href="/auth/login" className="text-sm font-semibold hover:text-primary transition-colors">
-            Sign In
-          </Link>
-          <Link
-            href="/auth/sign-up"
-            className="px-5 py-2.5 bg-foreground text-background rounded-full text-sm font-bold hover:opacity-90 transition-all active:scale-95"
-          >
-            Get Started
-          </Link>
-        </div>
+    <main className={styles.page}>
+      <nav className={styles.nav}>
+        <Link href="/" className={styles.logo}>
+          fg<span>FocusGuard</span>
+        </Link>
+        <Link href="/extension">Open companion ↗</Link>
       </nav>
-
-      {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 pt-16 pb-24 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/50 border border-border/50 text-xs font-bold uppercase tracking-widest text-muted-foreground mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
-          Intelligent Productivity Assistant
-        </div>
-
-        <h1 className="text-6xl md:text-8xl font-black tracking-tightest leading-[0.9] mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
-          CONQUER YOUR <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] animate-gradient-x">
-            DIGITAL FOCUS
-          </span>
-        </h1>
-
-        <p className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed mb-12 animate-in fade-in slide-in-from-bottom-8 duration-900">
-          Elite performance tracking meets intelligent distraction blocking.
-          FocusGuard doesn't just watch your time—it guards your flow state.
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in slide-in-from-bottom-10 duration-1000">
-          <Link
-            href="/auth/sign-up"
-            className="group px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black text-lg flex items-center justify-center gap-2 hover:shadow-2xl hover:shadow-primary/20 transition-all active:scale-95"
-          >
-            Start Your First Session
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <button className="px-8 py-4 bg-secondary text-foreground rounded-2xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-secondary/80 transition-all">
-            <Play className="w-5 h-5 fill-current" />
-            Watch Demo
-          </button>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="max-w-7xl mx-auto px-6 py-24 border-t border-border/50">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              title: "Neural Analytics",
-              desc: "Deep-dive into your focus patterns with high-precision metrics and behavioral visualization.",
-              icon: Zap,
-              color: "text-primary bg-primary/10"
-            },
-            {
-              title: "Deep Flow Shield",
-              desc: "Proactive distraction blocking that activates when it detects your focus is slipping away.",
-              icon: Shield,
-              color: "text-secondary bg-secondary/10"
-            },
-            {
-              title: "Behavioral Chains",
-              desc: "Map how one distraction leads to another with our proprietary node-based activity graphs.",
-              icon: Target,
-              color: "text-accent bg-accent/10"
-            }
-          ].map((feature, i) => (
-            <div
-              key={i}
-              className="group p-8 bg-card border border-border/50 rounded-[2.5rem] hover:border-primary/30 transition-all hover:shadow-2xl hover:shadow-primary/5 active:scale-[0.98]"
-            >
-              <div className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-6 transition-transform group-hover:scale-110 group-hover:rotate-3`}>
-                <feature.icon className="w-8 h-8" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
-              <p className="text-muted-foreground leading-relaxed">{feature.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Trust Section */}
-      <section className="bg-secondary/20 py-24">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-black mb-16 tracking-tight">DESIGNED FOR ULTRA-PRODUCTIVITY</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {['Flow State Detection', 'Screen Blocking', 'Daily Insights', 'Privacy First'].map((item) => (
-              <div key={item} className="flex flex-col items-center gap-4">
-                <CheckCircle2 className="w-8 h-8 text-primary" />
-                <span className="font-bold text-sm tracking-widest uppercase">{item}</span>
-              </div>
-            ))}
+      <section className={styles.hero}>
+        <div>
+          <p className={styles.kicker}>A BROWSER EXTENSION FOR FOCUSED WORK</p>
+          <h1>
+            A little less
+            <br />
+            tab switching.
+          </h1>
+          <p className={styles.lead}>
+            Set aside time for one task. FocusGuard puts a reminder between you
+            and the sites that usually pull you away.
+          </p>
+          <div className={styles.actions}>
+            <a href="/focusguard-extension.zip" download>
+              Download extension ↓
+            </a>
+            <Link href="/extension">Connect the companion</Link>
           </div>
+          <p className={styles.note}>
+            Chrome 120+ · Local storage · No account required
+          </p>
         </div>
+        <aside
+          className={styles.preview}
+          aria-label="Example focus session, illustrative only"
+        >
+          <div className={styles.previewTop}>
+            <span>FOCUSGUARD</span>
+            <span>Example session</span>
+          </div>
+          <p className={styles.timer}>25:00</p>
+          <p>One task. A clear stopping point.</p>
+          <div className={styles.rule}>
+            <span>reddit.com</span>
+            <strong>Block</strong>
+          </div>
+          <div className={styles.rule}>
+            <span>youtube.com</span>
+            <strong>Ask first</strong>
+          </div>
+          <div className={styles.rule}>
+            <span>docs.google.com</span>
+            <strong>Allow</strong>
+          </div>
+          <small>Choose your own rules in the extension.</small>
+        </aside>
       </section>
-
-      <footer className="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-border/50">
-        <div className="flex items-center gap-2">
-          <Shield className="w-5 h-5 text-primary" />
-          <span className="font-black tracking-tighter uppercase text-sm">FocusGuard © 2026</span>
+      <section className={styles.features}>
+        <article>
+          <span>01 / SET YOUR BOUNDARIES</span>
+          <h2>Different sites, different rules.</h2>
+          <p>
+            Block a distraction, ask before opening a video, or allow a useful
+            site. Rules include subdomains and can be changed at any time.
+          </p>
+        </article>
+        <article>
+          <span>02 / LEAVE ROOM FOR A BREAK</span>
+          <h2>Focus, then step away.</h2>
+          <p>
+            Start a session from the toolbar. Optional Pomodoro cycles pause
+            reminders during breaks and bring them back for the next focus
+            period.
+          </p>
+        </article>
+        <article>
+          <span>03 / SEE WHERE TIME WENT</span>
+          <h2>Reports that stay with you.</h2>
+          <p>
+            Review approximate active browsing time and tab switches. Export
+            your history or clear it. Nothing is uploaded by the extension.
+          </p>
+        </article>
+      </section>
+      <section className={styles.install} id="install">
+        <div>
+          <p className={styles.kicker}>GET STARTED</p>
+          <h2>
+            Load it once.
+            <br />
+            Use it from your toolbar.
+          </h2>
+          <p>
+            This is an unpacked project build, not a Chrome Web Store listing.
+          </p>
         </div>
-        <div className="flex gap-8 text-sm text-muted-foreground font-medium">
-          <Link href="#" className="hover:text-foreground transition-colors">Privacy</Link>
-          <Link href="#" className="hover:text-foreground transition-colors">Terms</Link>
-          <Link href="#" className="hover:text-foreground transition-colors">Security</Link>
-        </div>
+        <ol>
+          <li>
+            <strong>Download and extract the ZIP.</strong>
+            <span>Keep the extracted folder somewhere you won’t move it.</span>
+          </li>
+          <li>
+            <strong>Open chrome://extensions.</strong>
+            <span>
+              Enable Developer mode, choose Load unpacked, and select the
+              extracted folder.
+            </span>
+          </li>
+          <li>
+            <strong>Pin FocusGuard and reload your tabs.</strong>
+            <span>Choose your site rules, save them, and start a session.</span>
+          </li>
+        </ol>
+      </section>
+      <section className={styles.limit}>
+        <h2>A tool you stay in control of.</h2>
+        <p>
+          FocusGuard uses page reminders, not network-level filtering. You can
+          always stop from the toolbar. It cannot control Chrome’s protected
+          pages, and its activity estimates are not exact timekeeping.
+        </p>
+      </section>
+      <footer className={styles.footer}>
+        <span>FocusGuard · Browser focus companion</span>
+        <Link href="/extension">Install & connection help ↗</Link>
       </footer>
     </main>
-  )
+  );
 }

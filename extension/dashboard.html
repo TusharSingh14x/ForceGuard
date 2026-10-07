@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FocusGuard workspace</title>
+    <link rel="stylesheet" href="ui.css" />
+  </head>
+  <body class="dashboard">
+    <main>
+      <header>
+        <div class="brand">
+          <span class="mark">f.</span>
+          <div>
+            <h1>FocusGuard</h1>
+            <small>PERSONAL BROWSER WORKSPACE</small>
+          </div>
+        </div>
+        <span id="badge">Connecting</span>
+      </header>
+      <nav aria-label="Extension navigation">
+        <button data-view="overview" aria-pressed="true">Focus</button
+        ><button data-view="rules" aria-pressed="false">Site rules</button
+        ><button data-view="reports" aria-pressed="false">Reports</button
+        ><button data-view="check" aria-pressed="false">URL check</button>
+      </nav>
+      <p id="message" role="status" aria-live="polite"></p>
+      <section data-panel="overview">
+        <section class="session">
+          <div>
+            <small id="status">Connecting to your browser…</small>
+            <h2>One task at a time.</h2>
+            <label for="intention">What will you work on?</label
+            ><input
+              id="intention"
+              maxlength="120"
+              placeholder="Finish the authentication module"
+            /><button id="toggleSession" class="primary" disabled>
+              Start focus session →
+            </button>
+          </div>
+          <div class="timer">
+            <span id="clock">25:00</span><small>FOCUS / BREAK</small>
+          </div>
+        </section>
+        <div class="presets">
+          <button data-preset="deep">
+            <strong>Deep work</strong><span>50 / 10 min</span></button
+          ><button data-preset="study">
+            <strong>Study</strong><span>25 / 5 min</span></button
+          ><button data-preset="sprint">
+            <strong>Sprint</strong><span>15 / 3 min</span>
+          </button>
+        </div>
+        <div class="metrics">
+          <div><span>Active focus</span><strong id="focused">0m</strong></div>
+          <div><span>Tab switches</span><strong id="switches">0</strong></div>
+          <div>
+            <span>Pause reminders</span><strong id="interruptions">0</strong>
+          </div>
+        </div>
+        <p id="goalLabel" class="muted">Daily focus target</p>
+        <progress
+          id="goalProgress"
+          max="100"
+          value="0"
+          aria-label="Daily focus target progress"
+        ></progress>
+        <h2>This week</h2>
+        <div id="weeklyChart" class="chart" role="img"></div>
+        <p class="muted">
+          Approximate foreground browsing. Idle time and breaks are excluded.
+        </p>
+      </section>
+      <section data-panel="rules" hidden>
+        <h2>Website boundaries</h2>
+        <form id="addRuleForm" class="inline">
+          <input
+            id="ruleHost"
+            placeholder="youtube.com"
+            aria-label="Domain for new rule"
+            required
+          /><select id="ruleMode" aria-label="New rule mode">
+            <option value="block">Block</option>
+            <option value="ask">Ask first</option>
+            <option value="allow">Allow</option></select
+          ><button class="primary">Add +</button>
+        </form>
+        <button id="addCurrentSite" class="textButton">
+          Use current website ↗
+        </button>
+        <div id="ruleList"></div>
+        <p class="muted">
+          Subdomains are included; the most specific rule wins. Rule edits keep
+          your timer running.
+        </p>
+        <form id="settingsForm">
+          <h2>Session preferences</h2>
+          <div class="fields">
+            <label
+              >Daily goal<input
+                id="dailyGoal"
+                type="number"
+                min="15"
+                max="600"
+                required /></label
+            ><label
+              >Temporary access<input
+                id="allowMinutes"
+                type="number"
+                min="1"
+                max="240"
+                required /></label
+            ><label
+              >Rapid switches / 10s<input
+                id="rapidThreshold"
+                type="number"
+                min="2"
+                max="50"
+                required /></label
+            ><label
+              >Focus minutes<input
+                id="focusMin"
+                type="number"
+                min="1"
+                max="180"
+                required /></label
+            ><label
+              >Break minutes<input
+                id="breakMin"
+                type="number"
+                min="1"
+                max="60"
+                required
+            /></label>
+          </div>
+          <label class="check"
+            ><input id="hardMode" type="checkbox" />Strict blocking: no
+            temporary bypass</label
+          ><label class="check"
+            ><input id="notifications" type="checkbox" />Focus and break
+            notifications</label
+          ><label class="check"
+            ><input id="pomodoroEnabled" type="checkbox" />Automatic focus /
+            break cycles</label
+          ><button class="primary">Save preferences</button>
+          <p class="muted">
+            Changing cycle lengths restarts the current phase. Other edits do
+            not.
+          </p>
+        </form>
+      </section>
+      <section data-panel="reports" hidden>
+        <h2>Today by website</h2>
+        <ul id="analytics"></ul>
+        <h2>Session journal</h2>
+        <ul id="sessions"></ul>
+        <div class="actions">
+          <button id="export" class="secondary">Export JSON ↓</button
+          ><button id="exportCsv" class="secondary">Export CSV ↓</button>
+        </div>
+        <details>
+          <summary>Manage local data</summary>
+          <p class="muted">
+            Keeps 30 days and 100 sessions. Deleting history cannot be undone.
+          </p>
+          <button id="clear" class="textButton">Clear history</button>
+        </details>
+      </section>
+      <section data-panel="check" hidden>
+        <h2>Look before you click.</h2>
+        <p class="muted">
+          Review an address locally. It is neither visited nor sent to a
+          service.
+        </p>
+        <form id="auditForm" class="inline">
+          <input
+            id="auditUrl"
+            type="text"
+            inputmode="url"
+            maxlength="2048"
+            autocapitalize="none"
+            spellcheck="false"
+            value="https://example.com"
+            aria-label="URL to check"
+            required
+          /><button class="primary">Check →</button>
+        </form>
+        <div class="checkExamples" aria-label="Example addresses">
+          <button data-audit-example="https://example.com">Ordinary link</button>
+          <button data-audit-example="https://accounts.example.com@203.0.113.15/login">Hidden destination</button>
+          <button data-audit-example="https://bit.ly/demo">Shortened link</button>
+        </div>
+        <button id="auditSite" class="textButton">
+          Check the current website ↗
+        </button>
+        <div id="auditResult" class="audit" role="status">
+          Enter an address to inspect its URL traits.
+        </div>
+        <p class="muted">
+          Offline model from your mlp02 project. Scores are experimental; missing content and reputation features can make a check inconclusive. No API key is needed.
+        </p>
+      </section>
+      <footer>
+        <button id="openDashboard" class="textButton">
+          Open full workspace ↗</button
+        ><span>Stored in this browser · v2.3.0</span>
+      </footer>
+    </main>
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>

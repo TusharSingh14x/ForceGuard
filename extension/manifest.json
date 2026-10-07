@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "FocusGuard",
+  "version": "2.3.0",
+  "minimum_chrome_version": "120",
+  "description": "Local focus controls, site rules, offline URL risk analysis, and private activity insights.",
+  "permissions": ["tabs", "storage", "alarms", "idle", "notifications"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "FocusGuard"
+  },
+  "options_page": "dashboard.html",
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "icons": {
+    "128": "icon.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'"
+  }
+}

@@ -35,7 +35,6 @@ export function Header({ isSessionActive, onToggleSession, sessionStartTime }: H
   };
 
   return (
-  return (
     <header className="sticky top-0 z-[60] border-b border-white/5 bg-background/60 backdrop-blur-3xl">
       <div className="max-w-7xl mx-auto flex h-24 items-center justify-between px-8">
         {/* Left: Logo and Status */}
